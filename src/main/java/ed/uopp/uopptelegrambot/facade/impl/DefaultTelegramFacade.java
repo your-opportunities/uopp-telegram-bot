@@ -1,7 +1,9 @@
 package ed.uopp.uopptelegrambot.facade.impl;
 
+import ed.uopp.uopptelegrambot.data.BotState;
 import ed.uopp.uopptelegrambot.facade.TelegramFacade;
 import ed.uopp.uopptelegrambot.service.InputMessageHandlerService;
+import ed.uopp.uopptelegrambot.service.UserDataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,98 +16,41 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 @Service
 public class DefaultTelegramFacade implements TelegramFacade {
 
-    //    private final CallbackQueryFacade callbackQueryFacade;
+    public static final String START_CMD = "/start";
+    public static final String CREATE_SUBSCRIPTION_CMD = "/create_subscription";
+    public static final String VIEW_SUBSCRIPTION_CMD = "/view_subscription";
+    public static final String DELETE_SUBSCRIPTION_CMD = "/delete_subscription";
+
     private final InputMessageHandlerService inputMessageHandlerService;
+    private final UserDataService userDataService;
 
     @Override
     public SendMessage handleUpdate(Update update) {
-        SendMessage replyMessage = null;
-
         Message message = update.getMessage();
-        if (message != null && message.hasText()) {
-            replyMessage = inputMessageHandlerService.handleMessage(message);
+
+        if (message == null || !message.hasText()) {
+            log.error("wrong error message");
+            throw new RuntimeException();
         }
 
-        return replyMessage;
+        return processMessage(message);
     }
 
+    private SendMessage processMessage(Message message) {
+        String messageText = message.getText();
+        Long userId = message.getFrom().getId();
 
-//    private SendMessage getMainMenuMessage2(Long chatId, String textMessage) {
-//        final ReplyKeyboardMarkup replyKeyboardMarkup = getMainMenuKeyboard(new Object());
-//        final SendMessage mainMenuMessage =
-//                createMessageWithKeyboard(chatId, textMessage, replyKeyboardMarkup);
-//
-//        return mainMenuMessage;
-//    }
-//
-//    private ReplyKeyboardMarkup getMainMenuKeyboard(Object o) {
-//
-//
-//
-//        List<KeyboardRow> keyboard = new ArrayList<>();
-//
-//        KeyboardRow row1 = new KeyboardRow();
-//        KeyboardRow row2 = new KeyboardRow();
-//        KeyboardRow row3 = new KeyboardRow();
-//        row1.add(new KeyboardButton("2Перейти до наступного фільтра"));
-//        row1.add(new KeyboardButton("2One"));
-//        row2.add(new KeyboardButton("2Two"));
-//        row3.add(new KeyboardButton("2Three"));
-//        keyboard.add(row1);
-//        keyboard.add(row2);
-//        keyboard.add(row3);
-//        final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(keyboard);
-//        replyKeyboardMarkup.setSelective(true);
-//        replyKeyboardMarkup.setResizeKeyboard(true);
-//        replyKeyboardMarkup.setOneTimeKeyboard(false);
-//        return replyKeyboardMarkup;
-//    }
-//
-//    public SendMessage getMainMenuMessage(final long chatId, final String textMessage) {
-//        final ReplyKeyboardMarkup replyKeyboardMarkup = getMainMenuKeyboard();
-//        final SendMessage mainMenuMessage =
-//                createMessageWithKeyboard(chatId, textMessage, replyKeyboardMarkup);
-//
-//        return mainMenuMessage;
-//    }
-//
-//    private ReplyKeyboardMarkup getMainMenuKeyboard() {
-//
-//
-//
-//        List<KeyboardRow> keyboard = new ArrayList<>();
-//
-////        KeyboardRow row1 = new KeyboardRow();
-////        KeyboardRow row2 = new KeyboardRow();
-////        KeyboardRow row3 = new KeyboardRow();
-////        row1.add(new KeyboardButton("Перейти до наступного фільтра"));
-////        row1.add(new KeyboardButton("One"));
-////        row2.add(new KeyboardButton("Two"));
-////        row3.add(new KeyboardButton("Three"));
-////        keyboard.add(row1);
-////        keyboard.add(row2);
-////        keyboard.add(row3);
-//
-//        for (int i = 0; i < 20; i++) {
-//            keyboard.add(new KeyboardRow("This is " + i));
-//        }
-//
-//        final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(keyboard);
-//        replyKeyboardMarkup.setSelective(true);
-//        replyKeyboardMarkup.setResizeKeyboard(true);
-//        replyKeyboardMarkup.setOneTimeKeyboard(false);
-//        return replyKeyboardMarkup;
-//    }
-//
-//    private SendMessage createMessageWithKeyboard(Long chatId,
-//                                                  String textMessage,
-//                                                  final ReplyKeyboardMarkup replyKeyboardMarkup) {
-//        final SendMessage sendMessage = new SendMessage(chatId.toString(), textMessage);
-//        sendMessage.enableMarkdown(true);
-//        if (replyKeyboardMarkup != null) {
-//            sendMessage.setReplyMarkup(replyKeyboardMarkup);
-//        }
-//        return sendMessage;
-//    }
+        BotState botState = switch (messageText) {
+            case START_CMD -> BotState.INIT_STATE;
+            case CREATE_SUBSCRIPTION_CMD -> BotState.CREATE_SUBSCRIPTION_STATE;
+            case VIEW_SUBSCRIPTION_CMD -> BotState.VIEW_SUBSCRIPTION_STATE;
+            case DELETE_SUBSCRIPTION_CMD -> BotState.DELETE_SUBSCRIPTION_STATE;
+            default -> userDataService.getUserBotState(userId);
+        };
+
+        userDataService.saveUserBotState(userId, botState);
+
+        return inputMessageHandlerService.processMessage(botState, message);
+    }
 
 }

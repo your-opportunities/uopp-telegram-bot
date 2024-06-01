@@ -13,9 +13,9 @@ public class DefaultPropertyMessageService implements PropertyMessageService {
     private final Locale locale;
     private final MessageSource messageSource;
 
-    public DefaultPropertyMessageService(@Value("${localeTag}") String localeTag, MessageSource messageSource) {
+    public DefaultPropertyMessageService(MessageSource messageSource) {
         this.messageSource = messageSource;
-        this.locale = Locale.forLanguageTag(localeTag);
+        this.locale = Locale.forLanguageTag("ua");
     }
 
     @Override
