@@ -1,10 +1,18 @@
 server:
-    port: 8082
+  port: 8082
 
 spring:
-    application:
-        name: uopp-telegram-bot
+  application:
+    name: uopp-telegram-bot
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: user
+    password: password
 
 application:
-    uopp-core:
-        name: http://localhost:8080/
+  uopp-core:
+    name: http://localhost:8080/
+
+  rabbitmq:
+    queue: telegram.queue

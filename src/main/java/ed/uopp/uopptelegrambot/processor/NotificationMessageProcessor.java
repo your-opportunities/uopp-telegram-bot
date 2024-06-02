@@ -1,7 +1,9 @@
 package ed.uopp.uopptelegrambot.processor;
 
+import ed.uopp.uopptelegrambot.data.mq.NotificationDTO;
+
 public interface NotificationMessageProcessor {
 
-    void processNotification(Object object);
+    void processNotification(NotificationDTO notificationDTO);
 
 }
