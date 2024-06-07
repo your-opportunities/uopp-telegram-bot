@@ -22,7 +22,6 @@ public class DefaultInputMessageHandlerService implements InputMessageHandlerSer
                 .findFirst()
                 .map(messageHandler -> messageHandler.handleMessage(message))
                 .orElse(null);
-//                .orElse(getFallbackMessage(message));
     }
 
 }

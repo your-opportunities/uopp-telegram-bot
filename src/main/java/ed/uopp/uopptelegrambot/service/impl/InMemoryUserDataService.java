@@ -3,12 +3,18 @@ package ed.uopp.uopptelegrambot.service.impl;
 import ed.uopp.uopptelegrambot.data.BotState;
 import ed.uopp.uopptelegrambot.data.SubscriptionData;
 import ed.uopp.uopptelegrambot.service.UserDataService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+@ConditionalOnProperty(
+        name = "application.telegram-bot.state-persistence-type",
+        havingValue = "inMemory",
+        matchIfMissing = true)
 @Service
 public class InMemoryUserDataService implements UserDataService {
 

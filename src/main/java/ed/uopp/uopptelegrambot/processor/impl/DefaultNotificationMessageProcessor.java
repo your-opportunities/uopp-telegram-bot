@@ -25,7 +25,7 @@ public class DefaultNotificationMessageProcessor implements NotificationMessageP
         log.info("Processing notification for user '{}'", notificationDTO.userId());
 
         InlineKeyboardButton linkBtn = InlineKeyboardButton.builder()
-                .text("Переглянути через вебсайт + "+ notificationDTO.opportunityLink())
+                .text("Переглянути через вебсайт")
                 .callbackData("dummy")
 //                .url(notificationDTO.opportunityLink()) // localhost does not work with telegram,
                 .build();

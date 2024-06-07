@@ -9,10 +9,16 @@ spring:
     port: 5672
     username: user
     password: password
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
 
 application:
   uopp-core:
     name: http://localhost:8080/
-
   rabbitmq:
     queue: telegram.queue
+  telegram-bot:
+    state-persistence-type: redis # redis or inMemory
